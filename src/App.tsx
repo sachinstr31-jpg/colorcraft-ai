@@ -31,6 +31,7 @@ import {
 } from './utils/pdfGenerator';
 import { generateSampleImage } from './utils/sampleImages';
 import { enrichPromptConcept } from './utils/aiService';
+import { translations, Language, toMarathiDigits } from './utils/translations';
 import {
   Sparkles,
   Image as ImageIcon,
@@ -50,7 +51,8 @@ import {
   Search,
   Tag,
   Star,
-  Check
+  Check,
+  Globe
 } from 'lucide-react';
 
 interface CartItem {
@@ -66,6 +68,24 @@ export default function App() {
     'home' | 'categories' | 'photo' | 'dots' | 'math' | 'tracing' | 'puzzles' | 'book' | 'shop' | 'admin'
   >('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Language state (Marathi or English)
+  const [lang, setLang] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem('colorcraft_lang');
+      return saved === 'en' ? 'en' : 'mr';
+    } catch {
+      return 'mr';
+    }
+  });
+
+  const t = translations[lang];
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('colorcraft_lang', lang);
+    } catch {}
+  }, [lang]);
 
   // 1. Persistent Book Pages State (LocalStorage backed)
   const [bookPages, setBookPages] = useState<ActivityPage[]>(() => {
@@ -179,7 +199,7 @@ export default function App() {
                 <span className="text-xs font-black px-1.5 py-0.5 rounded-md bg-[#6C5CE7] text-white tracking-wider">AI</span>
               </div>
               <p className="text-[10px] font-bold tracking-wider text-[#A0AEC0] uppercase">
-                Create, Learn, Color &amp; Play!
+                {t.tagline}
               </p>
             </div>
           </div>
@@ -187,41 +207,51 @@ export default function App() {
           {/* Desktop Nav Items */}
           <nav className="hidden lg:flex items-center space-x-1">
             {[
-              { id: 'home', label: 'Home' },
-              { id: 'categories', label: 'Categories' },
-              { id: 'photo', label: 'Photo to Outline' },
-              { id: 'dots', label: 'Connect Dots' },
-              { id: 'math', label: 'Maths Studio' },
-              { id: 'tracing', label: 'Tracing' },
-              { id: 'puzzles', label: 'Puzzles & Mazes' },
-              { id: 'book', label: `My Book (${bookPages.length})` },
-              { id: 'shop', label: 'Shop' },
-              { id: 'admin', label: 'Admin' },
-            ].map((t) => (
+              { id: 'home', label: t.navHome },
+              { id: 'categories', label: t.navCategories },
+              { id: 'photo', label: t.navPhoto },
+              { id: 'dots', label: t.navDots },
+              { id: 'math', label: t.navMath },
+              { id: 'tracing', label: t.navTracing },
+              { id: 'puzzles', label: t.navPuzzles },
+              { id: 'book', label: `${t.navBook} (${bookPages.length})` },
+              { id: 'shop', label: t.navShop },
+              { id: 'admin', label: t.navAdmin },
+            ].map((item) => (
               <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id as any)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
-                  activeTab === t.id
+                key={item.id}
+                onClick={() => setActiveTab(item.id as any)}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
+                  activeTab === item.id
                     ? 'bg-[#6C5CE7] text-white shadow-sm'
                     : 'text-[#4A5568] hover:bg-[#F7FAFC]'
                 }`}
               >
-                {t.label}
+                {item.label}
               </button>
             ))}
           </nav>
 
           {/* Right Action Items */}
-          <div className="flex items-center space-x-3 shrink-0">
+          <div className="flex items-center space-x-2.5 shrink-0">
+            {/* Language Toggle */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'mr' : 'en')}
+              className="px-2.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-[#6C5CE7] font-bold text-xs flex items-center space-x-1.5 transition-all shadow-xs"
+              title={lang === 'en' ? 'मराठीमध्ये बदला' : 'Switch to English'}
+            >
+              <Globe className="w-3.5 h-3.5 text-[#6C5CE7]" />
+              <span className="font-extrabold">{lang === 'en' ? 'मराठी' : 'EN'}</span>
+            </button>
+
             <button
               onClick={() => setCartOpen(true)}
-              className="relative p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-xs flex items-center space-x-1.5 transition-all"
+              className="relative p-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-xs flex items-center space-x-1.5 transition-all"
             >
               <ShoppingBag className="w-4 h-4 text-gray-700" />
-              <span className="hidden sm:inline">Cart</span>
+              <span className="hidden sm:inline">{t.cart}</span>
               {cart.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 bg-[#6C5CE7] text-white rounded-full text-[10px] font-extrabold">
+                <span className="ml-0.5 px-1.5 py-0.2 bg-[#6C5CE7] text-white rounded-full text-[10px] font-extrabold">
                   {cart.length}
                 </span>
               )}
@@ -230,7 +260,7 @@ export default function App() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2.5 rounded-xl text-gray-600 hover:bg-gray-100 focus:outline-none"
+              className="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 focus:outline-none"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -242,28 +272,28 @@ export default function App() {
         {mobileMenuOpen && (
           <div className="lg:hidden bg-white border-b border-gray-200 px-4 pt-3 pb-5 space-y-1">
             {[
-              { id: 'home', label: 'Home' },
-              { id: 'categories', label: 'All 15 Activity Categories' },
-              { id: 'photo', label: 'Photo-to-Coloring Studio' },
-              { id: 'dots', label: 'Connect the Dots Studio' },
-              { id: 'math', label: 'Maths Worksheets' },
-              { id: 'tracing', label: 'Handwriting & Tracing' },
-              { id: 'puzzles', label: 'Puzzles & Mazes' },
-              { id: 'book', label: `My Activity Book (${bookPages.length} Pages)` },
-              { id: 'shop', label: 'Educational Store' },
-              { id: 'admin', label: 'Admin Dashboard' },
-            ].map((t) => (
+              { id: 'home', label: t.navHome },
+              { id: 'categories', label: t.navCategories },
+              { id: 'photo', label: t.navPhoto },
+              { id: 'dots', label: t.navDots },
+              { id: 'math', label: t.navMath },
+              { id: 'tracing', label: t.navTracing },
+              { id: 'puzzles', label: t.navPuzzles },
+              { id: 'book', label: `${t.navBook} (${bookPages.length})` },
+              { id: 'shop', label: t.navShop },
+              { id: 'admin', label: t.navAdmin },
+            ].map((item) => (
               <button
-                key={t.id}
+                key={item.id}
                 onClick={() => {
-                  setActiveTab(t.id as any);
+                  setActiveTab(item.id as any);
                   setMobileMenuOpen(false);
                 }}
                 className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold ${
-                  activeTab === t.id ? 'bg-[#6C5CE7] text-white' : 'text-gray-700 hover:bg-gray-100'
+                  activeTab === item.id ? 'bg-[#6C5CE7] text-white' : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                {t.label}
+                {item.label}
               </button>
             ))}
           </div>
@@ -276,31 +306,37 @@ export default function App() {
           <HomeView
             onNavigate={(tab) => setActiveTab(tab)}
             bookPageCount={bookPages.length}
+            t={t}
+            lang={lang}
           />
         )}
         {activeTab === 'categories' && (
-          <CategoriesView onSelectCategory={(catId) => {
-            if (catId === 'dots') setActiveTab('dots');
-            else if (catId === 'math') setActiveTab('math');
-            else if (catId === 'tracing' || catId === 'alphabet' || catId === 'numbers') setActiveTab('tracing');
-            else if (catId === 'puzzles' || catId === 'mazes' || catId === 'wordsearch') setActiveTab('puzzles');
-            else setActiveTab('photo');
-          }} />
+          <CategoriesView
+            onSelectCategory={(catId) => {
+              if (catId === 'dots') setActiveTab('dots');
+              else if (catId === 'math') setActiveTab('math');
+              else if (catId === 'tracing' || catId === 'alphabet' || catId === 'numbers') setActiveTab('tracing');
+              else if (catId === 'puzzles' || catId === 'mazes' || catId === 'wordsearch') setActiveTab('puzzles');
+              else setActiveTab('photo');
+            }}
+            t={t}
+            lang={lang}
+          />
         )}
         {activeTab === 'photo' && (
-          <PhotoToColoringStudio onAddToBook={addPageToBook} />
+          <PhotoToColoringStudio onAddToBook={addPageToBook} t={t} lang={lang} />
         )}
         {activeTab === 'dots' && (
-          <ConnectDotsStudio onAddToBook={addPageToBook} />
+          <ConnectDotsStudio onAddToBook={addPageToBook} t={t} lang={lang} />
         )}
         {activeTab === 'math' && (
-          <MathStudio onAddToBook={addPageToBook} />
+          <MathStudio onAddToBook={addPageToBook} t={t} lang={lang} />
         )}
         {activeTab === 'tracing' && (
-          <TracingStudio onAddToBook={addPageToBook} />
+          <TracingStudio onAddToBook={addPageToBook} t={t} lang={lang} />
         )}
         {activeTab === 'puzzles' && (
-          <PuzzleStudio onAddToBook={addPageToBook} />
+          <PuzzleStudio onAddToBook={addPageToBook} t={t} lang={lang} />
         )}
         {activeTab === 'book' && (
           <BookBuilderView
@@ -309,19 +345,27 @@ export default function App() {
             setMeta={setBookMeta}
             setPages={setBookPages}
             onDownloadSuccess={() => showToast('Activity Book PDF compiled and downloaded!')}
+            t={t}
+            lang={lang}
           />
         )}
         {activeTab === 'shop' && (
-          <ShopView onAddToCart={(item) => {
-            setCart((prev) => [...prev, item]);
-            showToast(`Added "${item.title}" to cart!`);
-          }} />
+          <ShopView
+            onAddToCart={(item) => {
+              setCart((prev) => [...prev, item]);
+              showToast(`Added "${item.title}" to cart!`);
+            }}
+            t={t}
+            lang={lang}
+          />
         )}
         {activeTab === 'admin' && (
           <AdminView
             totalBookPages={bookPages.length}
             authenticated={adminAuthenticated}
             onAuthenticate={() => setAdminAuthenticated(true)}
+            t={t}
+            lang={lang}
           />
         )}
       </main>
@@ -396,20 +440,24 @@ export default function App() {
 function HomeView({
   onNavigate,
   bookPageCount,
+  t,
+  lang,
 }: {
   onNavigate: (tab: any) => void;
   bookPageCount: number;
+  t: any;
+  lang: Language;
 }) {
   const steps = [
-    { num: '01', title: 'Choose or Upload', desc: 'Pick from 15 activity types or upload any family photo, toy, or pet image.' },
-    { num: '02', title: 'Customize & Generate', desc: 'Adjust outline thickness, dot counts, math levels, or tracing guide letters.' },
-    { num: '03', title: 'Compile & Print', desc: 'Add pages to your custom activity book and export a print-ready A4/Letter PDF.' },
+    { num: '01', title: t.step1Title, desc: t.step1Desc },
+    { num: '02', title: t.step2Title, desc: t.step2Desc },
+    { num: '03', title: t.step3Title, desc: t.step3Desc },
   ];
 
   const popularPacks = [
-    { title: 'Animal Kingdom Adventures', pages: 24, age: '3-7', tag: 'Best Seller' },
-    { title: 'Kindergarten Maths & Counting', pages: 30, age: '4-6', tag: 'Curriculum' },
-    { title: 'Space Odyssey Dot-to-Dot', pages: 20, age: '5-8', tag: 'Popular' },
+    { title: lang === 'mr' ? 'प्राण्यांचे साहस' : 'Animal Kingdom Adventures', pages: 24, age: '3-7', tag: lang === 'mr' ? 'सर्वाधिक पसंती' : 'Best Seller' },
+    { title: lang === 'mr' ? 'बालवाडी गणित व मोजणी' : 'Kindergarten Maths & Counting', pages: 30, age: '4-6', tag: lang === 'mr' ? 'अभ्यासक्रम' : 'Curriculum' },
+    { title: lang === 'mr' ? 'अंतराळ सफर ठिपके जोडा' : 'Space Odyssey Dot-to-Dot', pages: 20, age: '5-8', tag: lang === 'mr' ? 'लोकप्रिय' : 'Popular' },
   ];
 
   return (
@@ -419,16 +467,15 @@ function HomeView({
         <div className="max-w-3xl mx-auto">
           <div className="inline-flex items-center space-x-2 px-3 py-1 bg-white border border-gray-200 rounded-full text-xs font-bold text-gray-700 shadow-xs mb-4">
             <Sparkles className="w-3.5 h-3.5 text-[#6C5CE7]" />
-            <span>Zero-Budget • 100% Client-Side Engine • Print-Ready</span>
+            <span>{t.heroBadge}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#2D3748] tracking-tight leading-tight">
-            Create Your Own Magical Learning &amp; Coloring Books!
+            {t.heroTitle}
           </h1>
 
           <p className="text-base sm:text-lg text-[#718096] mt-4 max-w-2xl mx-auto leading-relaxed">
-            Turn your imagination, family photos, and educational goals into beautiful coloring pages,
-            numbered connect-the-dots, verified maths worksheets, and custom printable books.
+            {t.heroSubtitle}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3.5 mt-8">
@@ -437,20 +484,20 @@ function HomeView({
               className="px-6 py-3.5 bg-[#6C5CE7] hover:bg-[#5A4AD1] text-white font-bold rounded-2xl shadow-md transition-all text-sm flex items-center space-x-2"
             >
               <span>📸</span>
-              <span>Start Creating Free</span>
+              <span>{t.startFree}</span>
             </button>
             <button
               onClick={() => onNavigate('categories')}
               className="px-6 py-3.5 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 font-bold rounded-2xl shadow-xs transition-all text-sm"
             >
-              Explore 15 Activities
+              {t.exploreCategories}
             </button>
             <button
               onClick={() => onNavigate('book')}
               className="px-6 py-3.5 bg-[#2D3748] hover:bg-black text-white font-bold rounded-2xl shadow-sm transition-all text-sm flex items-center space-x-1.5"
             >
               <BookOpen className="w-4 h-4" />
-              <span>My Book ({bookPageCount})</span>
+              <span>{t.myBook} ({lang === 'mr' ? toMarathiDigits(bookPageCount) : bookPageCount})</span>
             </button>
           </div>
         </div>
@@ -459,14 +506,16 @@ function HomeView({
       {/* How It Works */}
       <section>
         <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">How It Works</h2>
-          <p className="text-xs sm:text-sm text-[#718096] mt-1">Simple 3-step creation process for parents and teachers.</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">{t.howItWorks}</h2>
+          <p className="text-xs sm:text-sm text-[#718096] mt-1">{t.howItWorksSub}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {steps.map((st) => (
             <div key={st.num} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs">
-              <span className="text-3xl font-black text-[#6C5CE7]">{st.num}</span>
+              <span className="text-3xl font-black text-[#6C5CE7]">
+                {lang === 'mr' ? toMarathiDigits(st.num) : st.num}
+              </span>
               <h3 className="text-base font-bold text-gray-800 mt-2">{st.title}</h3>
               <p className="text-xs text-gray-500 mt-1 leading-relaxed">{st.desc}</p>
             </div>
@@ -478,25 +527,55 @@ function HomeView({
       <section>
         <div className="flex flex-wrap items-end justify-between mb-8 gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">Interactive Creation Studios</h2>
-            <p className="text-xs sm:text-sm text-[#718096] mt-1">All engines run locally in the browser with zero paid subscriptions.</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">{t.studiosTitle}</h2>
+            <p className="text-xs sm:text-sm text-[#718096] mt-1">{t.studiosSub}</p>
           </div>
           <button
             onClick={() => onNavigate('categories')}
             className="text-xs font-bold text-[#6C5CE7] hover:underline"
           >
-            View all 15 categories →
+            {lang === 'mr' ? 'सर्व १५ प्रकार पहा →' : 'View all 15 categories →'}
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
-            { id: 'photo', title: 'Photo-to-Coloring Page', icon: '📸', desc: 'Convert pet, family, or object photos into clean line art outlines with edge dilation.' },
-            { id: 'dots', title: 'Number Connect the Dots', icon: '🔢', desc: '10, 20, 50, and 100 dot worksheets with contour-accurate sequential numbering.' },
-            { id: 'math', title: 'Maths Worksheets (Validated)', icon: '➕', desc: 'Addition, subtraction, missing numbers, and division with guaranteed correct answers.' },
-            { id: 'tracing', title: 'Alphabet & Letter Tracing', icon: '✏️', desc: 'Standardized 3-line ruling with green stroke-start guides for handwriting.' },
-            { id: 'puzzles', title: 'Word Search & Solvable Mazes', icon: '🧩', desc: 'Thematic word search puzzles and algorithmic single-solution mazes.' },
-            { id: 'book', title: 'Personalized Book Compiler', icon: '📚', desc: 'Combine multiple worksheets into a customized printable book with personalized cover.' },
+            {
+              id: 'photo',
+              title: lang === 'mr' ? 'फोटो ते रेखाचित्र' : 'Photo-to-Coloring Page',
+              icon: '📸',
+              desc: lang === 'mr' ? 'पाळीव प्राणी किंवा कौटुंबिक फोटोचे सुंदर रंगभरण चित्रात रूपांतर करा.' : 'Convert pet, family, or object photos into clean line art outlines with edge dilation.'
+            },
+            {
+              id: 'dots',
+              title: lang === 'mr' ? 'संख्या ठिपके जोडा' : 'Number Connect the Dots',
+              icon: '🔢',
+              desc: lang === 'mr' ? '१०, २०, ५० किंवा १०० ठिपके जोडून अंक आणि आकृत्यांचा सराव.' : '10, 20, 50, and 100 dot worksheets with contour-accurate sequential numbering.'
+            },
+            {
+              id: 'math',
+              title: lang === 'mr' ? 'गणित कार्यपत्रिका' : 'Maths Worksheets (Validated)',
+              icon: '➕',
+              desc: lang === 'mr' ? 'बेरीज, वजाबाकी, गहाळ अंक आणि भागाकाराचे अचूक पडताळलेले प्रश्न.' : 'Addition, subtraction, missing numbers, and division with guaranteed correct answers.'
+            },
+            {
+              id: 'tracing',
+              title: lang === 'mr' ? 'अक्षरलेखन व गिरवणे' : 'Alphabet & Letter Tracing',
+              icon: '✏️',
+              desc: lang === 'mr' ? 'मराठी स्वर, व्यंजने, मराठी अंक तसेच इंग्रजी अक्षरांसाठी ३-रेषा पद्धत.' : 'Standardized 3-line ruling with green stroke-start guides for handwriting.'
+            },
+            {
+              id: 'puzzles',
+              title: lang === 'mr' ? 'शब्द शोध आणि भुलभुलैया' : 'Word Search & Solvable Mazes',
+              icon: '🧩',
+              desc: lang === 'mr' ? 'थीम आधारित शब्द शोध कोडी आणि अचूक मार्ग असलेली भूलभूलैय्या कोडी.' : 'Thematic word search puzzles and algorithmic single-solution mazes.'
+            },
+            {
+              id: 'book',
+              title: lang === 'mr' ? 'वैयक्तिकृत पुस्तक निर्माता' : 'Personalized Book Compiler',
+              icon: '📚',
+              desc: lang === 'mr' ? 'तयार केलेली सर्व पाने पुस्तकात जोडा आणि कव्हरसह PDF डाउनलोड करा.' : 'Combine multiple worksheets into a customized printable book with personalized cover.'
+            },
           ].map((card) => (
             <div
               key={card.id}
@@ -509,7 +588,7 @@ function HomeView({
                 <p className="text-xs text-gray-500 mt-2 leading-relaxed">{card.desc}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-[#6C5CE7]">
-                <span>Launch Studio</span>
+                <span>{t.launchStudio}</span>
                 <span>→</span>
               </div>
             </div>
@@ -520,8 +599,12 @@ function HomeView({
       {/* Popular Activity Books */}
       <section className="bg-white p-8 rounded-3xl border border-gray-200">
         <div className="mb-6">
-          <h2 className="text-2xl font-black text-[#2D3748]">Popular Activity Books</h2>
-          <p className="text-xs text-[#718096]">Ready-to-print collections loved by parents and homeschoolers.</p>
+          <h2 className="text-2xl font-black text-[#2D3748]">
+            {lang === 'mr' ? 'लोकप्रिय अ‍ॅक्टिव्हिटी पुस्तके' : 'Popular Activity Books'}
+          </h2>
+          <p className="text-xs text-[#718096]">
+            {lang === 'mr' ? 'पालक आणि शिक्षकांनी पसंत केलेले प्रिंट-तयार संच.' : 'Ready-to-print collections loved by parents and homeschoolers.'}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -530,13 +613,15 @@ function HomeView({
               <div>
                 <span className="text-[10px] font-bold text-[#6C5CE7] uppercase tracking-wider">{pack.tag}</span>
                 <h3 className="text-sm font-bold text-gray-800 mt-1">{pack.title}</h3>
-                <p className="text-xs text-gray-500 mt-1">{pack.pages} Pages · Ages {pack.age}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {lang === 'mr' ? `${toMarathiDigits(pack.pages)} पाने · वय ${pack.age}` : `${pack.pages} Pages · Ages ${pack.age}`}
+                </p>
               </div>
               <button
                 onClick={() => onNavigate('shop')}
                 className="mt-4 w-full py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl"
               >
-                View in Store
+                {lang === 'mr' ? 'दुकान पहा' : 'View in Store'}
               </button>
             </div>
           ))}
@@ -546,15 +631,31 @@ function HomeView({
       {/* Customer Reviews Section */}
       <section>
         <div className="text-center mb-8">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Sample Community Feedback</span>
-          <h2 className="text-2xl font-black text-[#2D3748] mt-1">What Parents &amp; Teachers Say</h2>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+            {lang === 'mr' ? 'समुदाय अभिप्राय' : 'Sample Community Feedback'}
+          </span>
+          <h2 className="text-2xl font-black text-[#2D3748] mt-1">
+            {lang === 'mr' ? 'पालक आणि शिक्षक काय म्हणतात' : 'What Parents & Teachers Say'}
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { name: 'Sarah M.', role: 'Homeschool Parent', review: 'Being able to turn our pet dog’s photo into a coloring page made my daughter’s day. The PDF export is crystal clear on our home printer!' },
-            { name: 'David K.', role: '1st Grade Teacher', review: 'The programmatically validated maths sheets save me hours. No incorrect equations or negative numbers for young kids.' },
-            { name: 'Priya R.', role: 'Preschool Educator', review: 'The 3-line tracing format and connect-the-dots sequence are pedagogically sound. Truly exceptional zero-budget tool.' },
+            {
+              name: lang === 'mr' ? 'सारा एम.' : 'Sarah M.',
+              role: lang === 'mr' ? 'पालक' : 'Homeschool Parent',
+              review: lang === 'mr' ? 'पाळीव कुत्र्याचा फोटो रंगकामाच्या पानात बदलून मुलांनी खूप आनंद घेतला. प्रिंटची गुणवत्ताही उत्तम आहे.' : 'Being able to turn our pet dog’s photo into a coloring page made my daughter’s day. The PDF export is crystal clear on our home printer!'
+            },
+            {
+              name: lang === 'mr' ? 'डेव्हिड के.' : 'David K.',
+              role: lang === 'mr' ? 'पहिलीचे शिक्षक' : '1st Grade Teacher',
+              review: lang === 'mr' ? 'गणित कार्यपत्रिकांमधील अचूक पडताळणीमुळे वेळ वाचतो. लहान मुलांसाठी वजाबाकीचे ऋण अंक येत नाहीत.' : 'The programmatically validated maths sheets save me hours. No incorrect equations or negative numbers for young kids.'
+            },
+            {
+              name: lang === 'mr' ? 'प्रिया आर.' : 'Priya R.',
+              role: lang === 'mr' ? 'पूर्वप्राथमिक शिक्षिका' : 'Preschool Educator',
+              review: lang === 'mr' ? 'मराठी आणि इंग्रजी दोन्ही भाषांमध्ये अक्षर गिरवणे आणि ठिपके जोडणे मुलांसाठी अतिशय उपयुक्त आहे.' : 'The 3-line tracing format and connect-the-dots sequence are pedagogically sound. Truly exceptional zero-budget tool.'
+            },
           ].map((r, i) => (
             <div key={i} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs">
               <div className="flex items-center space-x-1 text-amber-400 mb-3">
@@ -578,23 +679,33 @@ function HomeView({
 // ----------------------------------------------------------------------
 // 2. CATEGORIES VIEW (All 15 Required Categories)
 // ----------------------------------------------------------------------
-function CategoriesView({ onSelectCategory }: { onSelectCategory: (id: string) => void }) {
+function CategoriesView({
+  onSelectCategory,
+  t: _t,
+  lang,
+}: {
+  onSelectCategory: (id: string) => void;
+  t?: any;
+  lang: Language;
+}) {
+  const isMr = lang === 'mr';
+
   const categoriesList = [
-    { id: 'coloring', name: 'Normal Coloring Pages', icon: '🎨', age: '3-10', diff: 'Easy to Advanced', desc: 'Classic black and white line drawings with wide spaces for crayons and pencils.' },
-    { id: 'dots', name: 'Number Connect the Dots', icon: '🔢', age: '4-8', diff: '10 to 100 Dots', desc: 'Contour-based dot-to-dot exercises reinforcing number sequences.' },
-    { id: 'alphabet', name: 'Alphabet Learning', icon: '🔤', age: '3-6', diff: 'Beginner', desc: 'Letter recognition, phonics matching, and uppercase/lowercase practice.' },
-    { id: 'numbers', name: 'Number Learning', icon: '7️⃣', age: '3-6', diff: 'Beginner', desc: 'Number identification, counting games, and before-and-after ordering.' },
-    { id: 'math', name: 'Maths Worksheets', icon: '➕', age: '4-8', diff: 'Age-Graded', desc: 'Validated addition, subtraction, missing numbers, and integer division.' },
-    { id: 'tracing', name: 'Tracing Worksheets', icon: '✏️', age: '3-6', diff: 'Beginner', desc: 'Handwriting practice with elementary 3-line rulings and stroke start points.' },
-    { id: 'puzzles', name: 'Puzzle Books', icon: '🧩', age: '5-9', diff: 'Medium', desc: 'Brain teasers, pattern completion, and visual logic puzzles.' },
-    { id: 'wordsearch', name: 'Word Search', icon: '🔍', age: '5-10', diff: 'Easy to Medium', desc: 'Hidden word grids with themed vocabularies and answer validation.' },
-    { id: 'mazes', name: 'Maze Games', icon: '🌀', age: '4-8', diff: 'Progressive', desc: 'Guaranteed solvable single-path labyrinth mazes from Start to Finish.' },
-    { id: 'matching', name: 'Matching Activities', icon: '🔄', age: '3-6', diff: 'Beginner', desc: 'Object matching, shadow silhouettes, and pair connection challenges.' },
-    { id: 'drawing', name: 'Drawing Practice', icon: '🖌️', age: '4-9', diff: 'Medium', desc: 'Step-by-step grid drawing practice and creative completion prompts.' },
-    { id: 'animals', name: 'Animals & Nature Activities', icon: '🦁', age: '3-8', diff: 'All Ages', desc: 'Jungle animals, underwater creatures, birds, and forest habitats.' },
-    { id: 'vehicles', name: 'Vehicles & Transportation', icon: '🚗', age: '3-8', diff: 'All Ages', desc: 'Cars, aeroplanes, trains, rockets, and construction machinery.' },
-    { id: 'fruits', name: 'Fruits & Vegetables', icon: '🍎', age: '3-6', diff: 'Beginner', desc: 'Healthy food recognition, counting produce, and coloring harvest sheets.' },
-    { id: 'shapes', name: 'Shapes & Colors', icon: '🔺', age: '3-5', diff: 'Beginner', desc: 'Geometric exploration of circles, triangles, stars, and pattern sequences.' },
+    { id: 'coloring', name: isMr ? 'साधी रंगभरण पाने' : 'Normal Coloring Pages', icon: '🎨', age: isMr ? '३-१०' : '3-10', diff: isMr ? 'सोपे ते प्रगत' : 'Easy to Advanced', desc: isMr ? 'क्रेयॉन आणि पेन्सिलने रंगवण्यासाठी सुंदर आणि ठळक रेषाचित्रे.' : 'Classic black and white line drawings with wide spaces for crayons and pencils.' },
+    { id: 'dots', name: isMr ? 'संख्या ठिपके जोडा' : 'Number Connect the Dots', icon: '🔢', age: isMr ? '४-८' : '4-8', diff: isMr ? '१० ते १०० ठिपके' : '10 to 100 Dots', desc: isMr ? 'अचूक आकारावर आधारित ठिपके जोडून अंक शिकण्याचे उपक्रम.' : 'Contour-based dot-to-dot exercises reinforcing number sequences.' },
+    { id: 'alphabet', name: isMr ? 'मुळाक्षरे व Alphabet' : 'Alphabet Learning', icon: '🔤', age: isMr ? '३-६' : '3-6', diff: isMr ? 'प्रारंभिक' : 'Beginner', desc: isMr ? 'अक्षरांची ओळख, उच्चार आणि कॅपिटल/स्मॉल अक्षरांचा सराव.' : 'Letter recognition, phonics matching, and uppercase/lowercase practice.' },
+    { id: 'numbers', name: isMr ? 'अंक ज्ञान व मोजणी' : 'Number Learning', icon: '7️⃣', age: isMr ? '३-६' : '3-6', diff: isMr ? 'प्रारंभिक' : 'Beginner', desc: isMr ? 'अंकांची ओळख, मोजणी खेळ आणि आधी-नंतरचे अंक.' : 'Number identification, counting games, and before-and-after ordering.' },
+    { id: 'math', name: isMr ? 'गणित कार्यपत्रिका' : 'Maths Worksheets', icon: '➕', age: isMr ? '४-८' : '4-8', diff: isMr ? 'वयोगटानुसार' : 'Age-Graded', desc: isMr ? 'पडताळलेली बेरीज, वजाबाकी, रिकाम्या जागा आणि भागाकार.' : 'Validated addition, subtraction, missing numbers, and integer division.' },
+    { id: 'tracing', name: isMr ? 'अक्षर गिरवणे (Tracing)' : 'Tracing Worksheets', icon: '✏️', age: isMr ? '३-६' : '3-6', diff: isMr ? 'प्रारंभिक' : 'Beginner', desc: isMr ? 'शालेय ३-रेषा पद्धत आणि दिशादर्शक ठिपक्यांसह सुंदर हस्तलेखन सराव.' : 'Handwriting practice with elementary 3-line rulings and stroke start points.' },
+    { id: 'puzzles', name: isMr ? 'कोड्यांचे पुस्तक' : 'Puzzle Books', icon: '🧩', age: isMr ? '५-९' : '5-9', diff: isMr ? 'मध्यम' : 'Medium', desc: isMr ? 'बुद्धिमत्ता वाढवणारी कोडी, पॅटर्न पूर्ण करणे आणि तार्किक कोडी.' : 'Brain teasers, pattern completion, and visual logic puzzles.' },
+    { id: 'wordsearch', name: isMr ? 'शब्द शोध (Word Search)' : 'Word Search', icon: '🔍', age: isMr ? '५-१०' : '5-10', diff: isMr ? 'सोपे ते मध्यम' : 'Easy to Medium', desc: isMr ? 'थीम आधारित शब्द शोधणे आणि शब्दसंग्रह वाढवणे.' : 'Hidden word grids with themed vocabularies and answer validation.' },
+    { id: 'mazes', name: isMr ? 'भुलभुलैया खेळ (Mazes)' : 'Maze Games', icon: '🌀', age: isMr ? '४-८' : '4-8', diff: isMr ? 'प्रगतीशील' : 'Progressive', desc: isMr ? 'सुरुवात ते शेवटपर्यंत जाणारे खात्रीशीर सोडवता येणारे भूलभूलैय्या कोडी.' : 'Guaranteed solvable single-path labyrinth mazes from Start to Finish.' },
+    { id: 'matching', name: isMr ? 'जोड्या लावा उपक्रम' : 'Matching Activities', icon: '🔄', age: isMr ? '३-६' : '3-6', diff: isMr ? 'प्रारंभिक' : 'Beginner', desc: isMr ? 'वस्तूंच्या सावल्या आणि चित्रांच्या योग्य जोड्या जोडणे.' : 'Object matching, shadow silhouettes, and pair connection challenges.' },
+    { id: 'drawing', name: isMr ? 'चित्रकला सराव' : 'Drawing Practice', icon: '🖌️', age: isMr ? '४-९' : '4-9', diff: isMr ? 'मध्यम' : 'Medium', desc: isMr ? 'टप्प्याटप्प्याने ग्रीड पद्धतीने चित्र काढणे आणि कल्पकता वाढवणे.' : 'Step-by-step grid drawing practice and creative completion prompts.' },
+    { id: 'animals', name: isMr ? 'प्राणी आणि निसर्ग' : 'Animals & Nature Activities', icon: '🦁', age: isMr ? '३-८' : '3-8', diff: isMr ? 'सर्व वयोगट' : 'All Ages', desc: isMr ? 'जंगलातील प्राणी, पक्षी, समुद्री जीव आणि निसर्गाची रंगीत दुनिया.' : 'Jungle animals, underwater creatures, birds, and forest habitats.' },
+    { id: 'vehicles', name: isMr ? 'वाहने आणि वाहतूक' : 'Vehicles & Transportation', icon: '🚗', age: isMr ? '३-८' : '3-8', diff: isMr ? 'सर्व वयोगट' : 'All Ages', desc: isMr ? 'मोटारी, विमाने, आगगाड्या, रॉकेट्स आणि विविध वाहने.' : 'Cars, aeroplanes, trains, rockets, and construction machinery.' },
+    { id: 'fruits', name: isMr ? 'फळे आणि भाज्या' : 'Fruits & Vegetables', icon: '🍎', age: isMr ? '३-६' : '3-6', diff: isMr ? 'प्रारंभिक' : 'Beginner', desc: isMr ? 'पौष्टिक फळे, भाज्यांची ओळख आणि मोजणीचे रंगभरण.' : 'Healthy food recognition, counting produce, and coloring harvest sheets.' },
+    { id: 'shapes', name: isMr ? 'आकार आणि रंग' : 'Shapes & Colors', icon: '🔺', age: isMr ? '३-५' : '3-5', diff: isMr ? 'प्रारंभिक' : 'Beginner', desc: isMr ? 'वर्तुळ, त्रिकोण, चौकोन आणि विविध भूमितीय आकार शिकणे.' : 'Geometric exploration of circles, triangles, stars, and pattern sequences.' },
   ];
 
   return (
@@ -643,8 +754,12 @@ function CategoriesView({ onSelectCategory }: { onSelectCategory: (id: string) =
 // ----------------------------------------------------------------------
 function PhotoToColoringStudio({
   onAddToBook,
+  t,
+  lang,
 }: {
   onAddToBook: (page: Omit<ActivityPage, 'id'>) => void;
+  t?: any;
+  lang?: Language;
 }) {
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
   const [options, setOptions] = useState<ProcessOptions>({
@@ -977,13 +1092,19 @@ function PhotoToColoringStudio({
 // ----------------------------------------------------------------------
 function ConnectDotsStudio({
   onAddToBook,
+  t,
+  lang,
 }: {
   onAddToBook: (page: Omit<ActivityPage, 'id'>) => void;
+  t?: any;
+  lang?: Language;
 }) {
+  const isMr = lang === 'mr';
   const [dotCount, setDotCount] = useState<number>(20);
   const [shape, setShape] = useState<PresetShape>('dinosaur');
   const [customActive, setCustomActive] = useState(false);
   const [showGuideLines, setShowGuideLines] = useState<boolean>(true);
+  const [useMarathiNums, setUseMarathiNums] = useState<boolean>(isMr);
   const [dots, setDots] = useState<DotPoint[]>([]);
 
   const dotsCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -1052,20 +1173,25 @@ function ConnectDotsStudio({
       ctx.fillStyle = pt.number === 1 ? '#6C5CE7' : '#1F2937';
       ctx.fill();
 
-      // Number Label
-      ctx.font = pt.number === 1 ? 'bold 13px sans-serif' : '11px sans-serif';
+      // Number Label with Devanagari font support
+      ctx.font = pt.number === 1 ? 'bold 13px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif' : '11px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
       ctx.fillStyle = pt.number === 1 ? '#6C5CE7' : '#4B5563';
-      const labelText = pt.number === 1 ? '1 (Start)' : String(pt.number);
+      const formattedNum = (isMr || useMarathiNums) ? toMarathiDigits(pt.number) : String(pt.number);
+      const labelText = pt.number === 1 ? ((isMr || useMarathiNums) ? '१ (सुरुवात)' : '1 (Start)') : formattedNum;
       ctx.fillText(labelText, pt.x + pt.labelOffsetX, pt.y + pt.labelOffsetY);
     });
-  }, [dots, showGuideLines]);
+  }, [dots, showGuideLines, isMr, useMarathiNums]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">Connect the Dots Generator</h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">
+          {isMr ? 'संख्या ठिपके जोडा जनरेटर (Connect the Dots)' : 'Connect the Dots Generator'}
+        </h2>
         <p className="text-xs sm:text-sm text-[#718096] mt-1">
-          Sequential numbered dots (1 to {dotCount}) following real geometric contours without random placements.
+          {isMr
+            ? `अनुक्रमिक ठिपके (१ ते ${toMarathiDigits(dotCount)}) जोडून सुंदर चित्र प्रकट करा.`
+            : `Sequential numbered dots (1 to ${dotCount}) following real geometric contours without random placements.`}
         </p>
       </div>
 
@@ -1145,7 +1271,21 @@ function ConnectDotsStudio({
               className="w-4 h-4 text-[#00B894] rounded accent-[#00B894]"
             />
             <label htmlFor="dotGuideToggle" className="text-xs font-bold text-gray-700">
-              Display Light Dotted Guide Lines
+              {isMr ? 'हलक्या तुटक मार्गदर्शक रेषा दाखवा' : 'Display Light Dotted Guide Lines'}
+            </label>
+          </div>
+
+          {/* Marathi Numerals Toggle */}
+          <div className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              id="dotMarathiToggle"
+              checked={useMarathiNums}
+              onChange={(e) => setUseMarathiNums(e.target.checked)}
+              className="w-4 h-4 text-[#6C5CE7] rounded accent-[#6C5CE7]"
+            />
+            <label htmlFor="dotMarathiToggle" className="text-xs font-bold text-gray-700">
+              {isMr ? 'मराठी अंक वापरा (१, २, ३...)' : 'Use Marathi Numerals (१, २, ३...)'}
             </label>
           </div>
 
@@ -1203,9 +1343,14 @@ function ConnectDotsStudio({
 // ----------------------------------------------------------------------
 function MathStudio({
   onAddToBook,
+  t,
+  lang,
 }: {
   onAddToBook: (page: Omit<ActivityPage, 'id'>) => void;
+  t?: any;
+  lang?: Language;
 }) {
+  const isMr = lang === 'mr';
   const [ageGroup, setAgeGroup] = useState<'3-4' | '4-5' | '5-6' | '6-8'>('5-6');
   const [problems, setProblems] = useState<MathProblem[]>([]);
   const [showAnswers, setShowAnswers] = useState(false);
@@ -1240,12 +1385,20 @@ function MathStudio({
     ctx.strokeRect(40, 30, 720, 80);
 
     ctx.fillStyle = '#1E293B';
-    ctx.font = 'bold 22px sans-serif';
-    ctx.fillText(`Maths Adventure • Age Group ${ageGroup}`, 60, 65);
+    ctx.font = 'bold 22px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+    ctx.fillText(
+      isMr ? `गणित कार्यपत्रिका (Maths) • वयोगट ${toMarathiDigits(ageGroup)}` : `Maths Adventure • Age Group ${ageGroup}`,
+      60,
+      65
+    );
 
-    ctx.font = '13px sans-serif';
+    ctx.font = '13px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
     ctx.fillStyle = '#64748B';
-    ctx.fillText('Name: __________________________    Date: ________________', 60, 95);
+    ctx.fillText(
+      isMr ? 'नाव: __________________________    दिनांक: ________________' : 'Name: __________________________    Date: ________________',
+      60,
+      95
+    );
 
     const startY = 150;
     const rowHeight = 190;
@@ -1267,13 +1420,13 @@ function MathStudio({
 
       // Number badge
       ctx.fillStyle = '#FD79A8';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.fillText(`Q${idx + 1}.`, x + 16, y + 28);
+      ctx.font = 'bold 13px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+      ctx.fillText(isMr ? `प्रश्न ${toMarathiDigits(idx + 1)}.` : `Q${idx + 1}.`, x + 16, y + 28);
 
       // Question text
       ctx.fillStyle = '#475569';
-      ctx.font = '12px sans-serif';
-      ctx.fillText(p.question, x + 44, y + 28);
+      ctx.font = '12px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+      ctx.fillText(p.question, x + (isMr ? 64 : 44), y + 28);
 
       // Expression
       ctx.fillStyle = '#0F172A';
@@ -1283,11 +1436,15 @@ function MathStudio({
       // Answer overlay if toggled
       if (showAnswers) {
         ctx.fillStyle = '#10B981';
-        ctx.font = 'bold 18px sans-serif';
-        ctx.fillText(`Verified Answer: ${p.correctAnswer}`, x + 25, y + 130);
+        ctx.font = 'bold 16px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+        ctx.fillText(
+          isMr ? `पडताळलेले उत्तर: ${p.correctAnswer}` : `Verified Answer: ${p.correctAnswer}`,
+          x + 25,
+          y + 130
+        );
       }
     });
-  }, [problems, showAnswers, ageGroup]);
+  }, [problems, showAnswers, ageGroup, isMr]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1389,11 +1546,18 @@ function MathStudio({
 // ----------------------------------------------------------------------
 function TracingStudio({
   onAddToBook,
+  t,
+  lang,
 }: {
   onAddToBook: (page: Omit<ActivityPage, 'id'>) => void;
+  t?: any;
+  lang: Language;
 }) {
-  const [mode, setMode] = useState<'letters' | 'numbers' | 'words'>('letters');
-  const [content, setContent] = useState('ABC');
+  const isMr = lang === 'mr';
+  const [mode, setMode] = useState<'mr_vowels' | 'mr_consonants' | 'mr_nums' | 'letters' | 'numbers' | 'words'>(
+    isMr ? 'mr_vowels' : 'letters'
+  );
+  const [content, setContent] = useState(isMr ? 'अआईई' : 'ABC');
   const tracingCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -1409,14 +1573,23 @@ function TracingStudio({
 
     // Header
     ctx.fillStyle = '#1E293B';
-    ctx.font = 'bold 24px sans-serif';
-    ctx.fillText('Handwriting & Tracing Practice', 50, 60);
+    ctx.font = 'bold 24px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+    ctx.fillText(
+      isMr ? 'हस्ताक्षर व अक्षरलेखन सराव (Tracing Practice)' : 'Handwriting & Tracing Practice',
+      50,
+      60
+    );
 
-    ctx.font = '13px sans-serif';
+    ctx.font = '13px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
     ctx.fillStyle = '#64748B';
-    ctx.fillText('Name: __________________________    Date: ________________', 50, 95);
+    ctx.fillText(
+      isMr ? 'नाव: __________________________    दिनांक: ________________' : 'Name: __________________________    Date: ________________',
+      50,
+      95
+    );
 
-    const items = content.split('').slice(0, 4);
+    // Support Devanagari or English characters
+    const items = Array.from(content).slice(0, 4);
 
     items.forEach((item, idx) => {
       const yBase = 180 + idx * 190;
@@ -1447,7 +1620,7 @@ function TracingStudio({
 
       // 1. Solid Master Model
       ctx.fillStyle = '#1E293B';
-      ctx.font = 'bold 75px monospace';
+      ctx.font = 'bold 68px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
       ctx.fillText(item, 70, yBase - 15);
 
       // 2. Dotted Trace Models with green stroke-start dot
@@ -1458,39 +1631,48 @@ function TracingStudio({
         // Green start dot
         ctx.fillStyle = '#10B981';
         ctx.beginPath();
-        ctx.arc(pos + 10, yBase - 75, 4, 0, Math.PI * 2);
+        ctx.arc(pos + 8, yBase - 75, 4, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#CBD5E1';
       }
     });
-  }, [content, mode]);
+  }, [content, mode, isMr]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">Handwriting &amp; Tracing Studio</h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">
+          {isMr ? 'हस्ताक्षर व अक्षरलेखन सराव स्टुडिओ' : 'Handwriting & Tracing Studio'}
+        </h2>
         <p className="text-xs sm:text-sm text-[#718096] mt-1">
-          Standardized elementary 3-line ruling with green directional stroke-start indicators.
+          {isMr
+            ? 'शालेय नियमांनुसार प्रमाणित ३-रेषा पद्धत आणि दिशादर्शक हिरवे ठिपके (मराठी व इंग्रजी).'
+            : 'Standardized elementary 3-line ruling with green directional stroke-start indicators.'}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-5">
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-2">Category</label>
-            <div className="grid grid-cols-3 gap-2">
+            <label className="block text-xs font-bold text-gray-700 mb-2">
+              {isMr ? 'प्रकार निवडा (Category)' : 'Category'}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
               {[
-                { id: 'letters', label: 'Letters A-Z' },
-                { id: 'numbers', label: 'Numbers 0-9' },
-                { id: 'words', label: 'Words' },
+                { id: 'mr_vowels', label: 'स्वर (अ, आ, इ)', def: 'अआईई' },
+                { id: 'mr_consonants', label: 'व्यंजन (क, ख, ग)', def: 'कखगघ' },
+                { id: 'mr_nums', label: 'मराठी अंक (१, २, ३)', def: '१२३४' },
+                { id: 'letters', label: 'English A-Z', def: 'ABCD' },
+                { id: 'numbers', label: 'English 0-9', def: '1234' },
+                { id: 'words', label: 'Words / शब्द', def: isMr ? 'घर' : 'CAT' },
               ].map((m) => (
                 <button
                   key={m.id}
                   onClick={() => {
                     setMode(m.id as any);
-                    setContent(m.id === 'letters' ? 'ABC' : m.id === 'numbers' ? '123' : 'CAT');
+                    setContent(m.def);
                   }}
-                  className={`py-2 px-2 rounded-xl text-xs font-bold border ${
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all text-left ${
                     mode === m.id
                       ? 'border-[#6C5CE7] bg-[#F4F1FE] text-[#6C5CE7]'
                       : 'border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -1503,14 +1685,35 @@ function TracingStudio({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Characters to Trace (Up to 4)</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              {isMr ? 'गिरवण्यासाठी अक्षरे / शब्द (जास्तीत जास्त ४)' : 'Characters to Trace (Up to 4)'}
+            </label>
             <input
               type="text"
               maxLength={4}
               value={content}
-              onChange={(e) => setContent(e.target.value.toUpperCase())}
-              className="w-full px-3 py-2 border rounded-xl text-sm font-bold uppercase tracking-wider"
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full px-3 py-2 border rounded-xl text-sm font-bold tracking-wider"
+              placeholder="उदा. अ, क, 1, A"
             />
+          </div>
+
+          {/* Quick presets for Marathi */}
+          <div>
+            <span className="block text-[11px] font-bold text-gray-500 mb-1.5">
+              {isMr ? 'त्वरित नमुने (Quick Presets):' : 'Quick Presets:'}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {['अआईई', 'उऊएऐ', 'कखगघ', 'चछजझ', '१२३४', '५६७८', 'ABCD', 'EFGH', 'घर', 'झाड'].map((preset) => (
+                <button
+                  key={preset}
+                  onClick={() => setContent(preset)}
+                  className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold"
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-gray-100 flex flex-col gap-2.5">
@@ -1518,16 +1721,18 @@ function TracingStudio({
               onClick={() => {
                 if (!tracingCanvasRef.current) return;
                 onAddToBook({
-                  title: `Tracing Practice: ${content}`,
+                  title: isMr ? `अक्षरलेखन सराव: ${content}` : `Tracing Practice: ${content}`,
                   category: 'Handwriting & Tracing',
                   dataUrl: tracingCanvasRef.current.toDataURL('image/png'),
-                  instructions: 'Start tracing from each green dot and keep your pencil between the blue guide lines.',
+                  instructions: isMr
+                    ? 'प्रत्येक हिरव्या ठिपक्यापासून रेषा गिरवायला सुरुवात करा आणि निळ्या रेषेच्या आत लिहा.'
+                    : 'Start tracing from each green dot and keep your pencil between the blue guide lines.',
                 });
               }}
               className="w-full py-3 bg-[#6C5CE7] hover:bg-[#5A4AD1] text-white rounded-xl font-bold shadow-sm text-xs transition-all flex items-center justify-center space-x-2"
             >
               <Plus className="w-4 h-4" />
-              <span>Add to My Activity Book</span>
+              <span>{t?.addToBook || 'Add to My Activity Book'}</span>
             </button>
 
             <button
@@ -1541,7 +1746,7 @@ function TracingStudio({
               className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-all text-xs flex items-center justify-center space-x-1.5"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download PNG</span>
+              <span>{t?.downloadPng || 'Download PNG'}</span>
             </button>
           </div>
         </div>
@@ -1562,9 +1767,14 @@ function TracingStudio({
 // ----------------------------------------------------------------------
 function PuzzleStudio({
   onAddToBook,
+  t,
+  lang,
 }: {
   onAddToBook: (page: Omit<ActivityPage, 'id'>) => void;
+  t?: any;
+  lang?: Language;
 }) {
+  const isMr = lang === 'mr';
   const [puzzleType, setPuzzleType] = useState<'wordsearch' | 'maze'>('wordsearch');
   const [wordTheme, setWordTheme] = useState<'animals' | 'space' | 'fruits' | 'ocean'>('animals');
   const [wordData, setWordData] = useState<WordSearchGrid | null>(null);
@@ -1606,12 +1816,20 @@ function PuzzleStudio({
 
     if (puzzleType === 'wordsearch' && wordData) {
       ctx.fillStyle = '#1E293B';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.fillText(`Word Search Puzzle • ${wordTheme.toUpperCase()}`, 50, 60);
+      ctx.font = 'bold 24px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+      ctx.fillText(
+        isMr ? `शब्द शोध कोडे (Word Search) • ${wordTheme.toUpperCase()}` : `Word Search Puzzle • ${wordTheme.toUpperCase()}`,
+        50,
+        60
+      );
 
-      ctx.font = '13px sans-serif';
+      ctx.font = '13px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
       ctx.fillStyle = '#64748B';
-      ctx.fillText('Name: __________________________    Date: ________________', 50, 95);
+      ctx.fillText(
+        isMr ? 'नाव: __________________________    दिनांक: ________________' : 'Name: __________________________    Date: ________________',
+        50,
+        95
+      );
 
       // Grid rendering
       const startX = 140;
@@ -1634,20 +1852,32 @@ function PuzzleStudio({
 
       // Word Bank List at bottom
       ctx.fillStyle = '#0F172A';
-      ctx.font = 'bold 16px sans-serif';
-      ctx.fillText('Find & Circle These Words:', 140, 720);
+      ctx.font = 'bold 16px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+      ctx.fillText(
+        isMr ? 'खालील शब्द शोधा आणि गोल करा:' : 'Find & Circle These Words:',
+        140,
+        720
+      );
 
       ctx.font = '14px sans-serif';
       ctx.fillStyle = '#64748B';
       ctx.fillText(wordData.words.join('   •   '), 140, 755);
     } else if (puzzleType === 'maze' && mazeData) {
       ctx.fillStyle = '#1E293B';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.fillText('Labyrinth Maze Adventure', 50, 60);
+      ctx.font = 'bold 24px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
+      ctx.fillText(
+        isMr ? 'भुलभुलैया साहस (Labyrinth Maze)' : 'Labyrinth Maze Adventure',
+        50,
+        60
+      );
 
-      ctx.font = '13px sans-serif';
+      ctx.font = '13px "Plus Jakarta Sans", "Noto Sans Devanagari", sans-serif';
       ctx.fillStyle = '#64748B';
-      ctx.fillText('Name: __________________________    Date: ________________', 50, 95);
+      ctx.fillText(
+        isMr ? 'नाव: __________________________    दिनांक: ________________' : 'Name: __________________________    Date: ________________',
+        50,
+        95
+      );
 
       const cellSize = 45;
       const startX = 400 - (mazeData.size * cellSize) / 2;
@@ -1801,13 +2031,18 @@ function BookBuilderView({
   setMeta,
   setPages,
   onDownloadSuccess,
+  t,
+  lang,
 }: {
   pages: ActivityPage[];
   meta: ActivityBookMeta;
   setMeta: React.Dispatch<React.SetStateAction<ActivityBookMeta>>;
   setPages: React.Dispatch<React.SetStateAction<ActivityPage[]>>;
   onDownloadSuccess: () => void;
+  t?: any;
+  lang?: Language;
 }) {
+  const isMr = lang === 'mr';
   const [exporting, setExporting] = useState(false);
 
   const handleDownloadPDF = async () => {
@@ -2029,7 +2264,16 @@ function BookBuilderView({
 // ----------------------------------------------------------------------
 // 9. SHOP & EDUCATIONAL STORE
 // ----------------------------------------------------------------------
-function ShopView({ onAddToCart }: { onAddToCart: (item: CartItem) => void }) {
+function ShopView({
+  onAddToCart,
+  t,
+  lang,
+}: {
+  onAddToCart: (item: CartItem) => void;
+  t?: any;
+  lang?: Language;
+}) {
+  const isMr = lang === 'mr';
   const [filter, setFilter] = useState<'all' | 'digital' | 'print'>('all');
 
   const products: CartItem[] = [
@@ -2230,11 +2474,16 @@ function AdminView({
   totalBookPages,
   authenticated,
   onAuthenticate,
+  t,
+  lang,
 }: {
   totalBookPages: number;
   authenticated: boolean;
   onAuthenticate: () => void;
+  t?: any;
+  lang?: Language;
 }) {
+  const isMr = lang === 'mr';
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
 

@@ -1,0 +1,6 @@
+{
+  "name": "ColorCraft AI",
+  "description": "Create, Learn, Color & Play! AI-powered kids activity & coloring book creation platform with custom photo-to-coloring, connect-the-dots, maths, tracing, and printable PDF books.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

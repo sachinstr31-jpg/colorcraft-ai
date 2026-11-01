@@ -122,6 +122,15 @@ export interface Translations {
   authRequired: string;
   pinPlaceholder: string;
   unlockBtn: string;
+
+  // Featured Free Book
+  featuredBookBadge: string;
+  featuredBookTitle: string;
+  featuredBookSub: string;
+  featuredBookPages: string;
+  downloadPdfButton: string;
+  previewPdfButton: string;
+  featuredBookThemes: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -230,6 +239,14 @@ export const translations: Record<Language, Translations> = {
     authRequired: 'Admin Authorization Required',
     pinPlaceholder: 'Enter PIN (Demo: 7788)',
     unlockBtn: 'Unlock Dashboard',
+
+    featuredBookBadge: 'Free Ready-to-Print Gift Book',
+    featuredBookTitle: 'Kids Coloring Book (Ages 3-8)',
+    featuredBookSub: '40 complete high-resolution printable coloring pages! Includes Chhatrapati Shivaji Maharaj, Bal Ganesha, Little Krishna, Fairies, Cartoons, Animals, and Flowers.',
+    featuredBookPages: '40 Printable Pages • High Resolution PDF',
+    downloadPdfButton: 'Download 40-Page PDF Free',
+    previewPdfButton: 'Preview & Read PDF',
+    featuredBookThemes: 'Cute Pictures • Big Designs • Perfect for Little Artists',
   },
   mr: {
     navHome: 'मुख्यपृष्ठ',
@@ -336,6 +353,14 @@ export const translations: Record<Language, Translations> = {
     authRequired: 'प्रशासक अधिकृतता आवश्यक',
     pinPlaceholder: 'पिन टाका (डेमो: 7788)',
     unlockBtn: 'डॅशबोर्ड उघडा',
+
+    featuredBookBadge: 'मोफत प्रिंट-तयार पुस्तक भेट 🎁',
+    featuredBookTitle: 'बालरंगकाम पुस्तक (Kids Coloring Book, वय ३-८)',
+    featuredBookSub: '४० पानांचे परिपूर्ण उच्च दर्जाचे रंगकाम पुस्तक! यात छत्रपती शिवाजी महाराज, बाळ गणेश, श्रीकृष्ण, परी, मिकी-मिनी, प्राणी आणि फुलांची सुंदर रेखाचित्रे आहेत.',
+    featuredBookPages: '४० प्रिंट-तयार पाने • उच्च दर्जाची PDF',
+    downloadPdfButton: 'मोफत ४० पानांचे PDF डाऊनलोड करा (३.३ MB)',
+    previewPdfButton: 'पुस्तकाची पाने उघडून पहा',
+    featuredBookThemes: 'सुंदर चित्रे • ठळक आकृत्या • बालकलाकारांसाठी परिपूर्ण',
   },
 };
 

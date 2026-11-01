@@ -503,6 +503,81 @@ function HomeView({
         </div>
       </section>
 
+      {/* Featured 40-Page Kids Coloring Book (Direct Download & Cover Showcase) */}
+      <section className="bg-gradient-to-br from-amber-50 via-white to-purple-50 rounded-3xl p-6 sm:p-8 border-2 border-amber-200/90 shadow-md">
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+          {/* Book Cover Image */}
+          <div className="relative group shrink-0 w-full sm:w-64 max-w-[260px] mx-auto">
+            <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 via-pink-400 to-purple-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+            <img
+              src="/books/kids-coloring-book-cover.png"
+              alt="Kids Coloring Book Cover"
+              className="relative w-full rounded-2xl shadow-xl border-2 border-white object-cover aspect-[3/4]"
+            />
+            <div className="absolute top-2.5 right-2.5 bg-rose-500 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+              {lang === 'mr' ? '१००% मोफत' : '100% FREE'}
+            </div>
+          </div>
+
+          {/* Book Details */}
+          <div className="flex-1 text-center lg:text-left space-y-4">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-xs font-bold">
+              <span>🎁</span>
+              <span>{t.featuredBookBadge}</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">
+              {t.featuredBookTitle}
+            </h2>
+
+            <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
+              {t.featuredBookSub}
+            </p>
+
+            {/* Highlights Badges */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-1">
+              <span className="inline-flex items-center text-xs font-semibold px-3 py-1 bg-white border border-gray-200 rounded-xl text-gray-700 shadow-2xs">
+                🚩 {lang === 'mr' ? 'शिवछत्रपती व शिवराय' : 'Chhatrapati Shivaji Maharaj'}
+              </span>
+              <span className="inline-flex items-center text-xs font-semibold px-3 py-1 bg-white border border-gray-200 rounded-xl text-gray-700 shadow-2xs">
+                🐘 {lang === 'mr' ? 'बाळ गणेश' : 'Bal Ganesha'}
+              </span>
+              <span className="inline-flex items-center text-xs font-semibold px-3 py-1 bg-white border border-gray-200 rounded-xl text-gray-700 shadow-2xs">
+                🦚 {lang === 'mr' ? 'बाळ श्रीकृष्ण' : 'Baby Krishna'}
+              </span>
+              <span className="inline-flex items-center text-xs font-semibold px-3 py-1 bg-white border border-gray-200 rounded-xl text-gray-700 shadow-2xs">
+                🧚 {lang === 'mr' ? 'राजकुमारी व जलपरी' : 'Princess & Mermaids'}
+              </span>
+              <span className="inline-flex items-center text-xs font-semibold px-3 py-1 bg-white border border-gray-200 rounded-xl text-gray-700 shadow-2xs">
+                🐶 {lang === 'mr' ? 'पाळीव प्राणी व फुले' : 'Animals & Flowers'}
+              </span>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+              <a
+                href="/books/kids-coloring-book.pdf"
+                download="Kids-Coloring-Book-ColorCraft.pdf"
+                className="px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-2xl shadow-lg transition-all text-sm flex items-center space-x-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>{t.downloadPdfButton}</span>
+              </a>
+
+              <a
+                href="/books/kids-coloring-book.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3.5 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 font-bold rounded-2xl shadow-xs transition-all text-sm flex items-center space-x-2"
+              >
+                <Eye className="w-4 h-4 text-purple-600" />
+                <span>{t.previewPdfButton}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works */}
       <section>
         <div className="text-center mb-10">
@@ -2277,12 +2352,13 @@ function ShopView({
   const [filter, setFilter] = useState<'all' | 'digital' | 'print'>('all');
 
   const products: CartItem[] = [
-    { id: 'prod_1', title: '50 Jungle Animals Coloring Pack', price: 149, type: 'Digital PDF', pages: 50 },
-    { id: 'prod_2', title: 'Complete Kindergarten Maths Bundle', price: 199, type: 'Digital PDF', pages: 40 },
-    { id: 'prod_3', title: 'Alphabet & Phonics Tracing Master', price: 99, type: 'Digital PDF', pages: 30 },
-    { id: 'prod_4', title: 'Connect-the-Dots Adventure 1-100', price: 129, type: 'Digital PDF', pages: 35 },
-    { id: 'prod_5', title: 'Under the Sea Puzzle & Mazes Book', price: 119, type: 'Digital PDF', pages: 25 },
-    { id: 'prod_6', title: 'Custom Printed Hardcover Book', price: 599, type: 'Physical Print (Future Expansion)', pages: 60 },
+    { id: 'prod_free_kids', title: isMr ? 'बालरंगकाम पुस्तक (शिवराय, गणेश, कृष्ण, कार्टून्स)' : 'Kids Coloring Book (Shivaji Maharaj, Ganesha, Krishna, Cartoons)', price: 0, type: isMr ? 'मोफत डिजिटल PDF' : 'Free Digital PDF', pages: 40 },
+    { id: 'prod_1', title: isMr ? '५० वन्यप्राणी रंगभरण संच' : '50 Jungle Animals Coloring Pack', price: 149, type: 'Digital PDF', pages: 50 },
+    { id: 'prod_2', title: isMr ? 'बालवाडी संपूर्ण गणित संच' : 'Complete Kindergarten Maths Bundle', price: 199, type: 'Digital PDF', pages: 40 },
+    { id: 'prod_3', title: isMr ? 'अक्षरलेखन व उच्चार मास्टर' : 'Alphabet & Phonics Tracing Master', price: 99, type: 'Digital PDF', pages: 30 },
+    { id: 'prod_4', title: isMr ? 'ठिपके जोडा साहसी सफर १-१००' : 'Connect-the-Dots Adventure 1-100', price: 129, type: 'Digital PDF', pages: 35 },
+    { id: 'prod_5', title: isMr ? 'समुद्र सफर कोडी व भुलभुलैया' : 'Under the Sea Puzzle & Mazes Book', price: 119, type: 'Digital PDF', pages: 25 },
+    { id: 'prod_6', title: isMr ? 'छापील हार्डकव्हर पुस्तक (घरपोच)' : 'Custom Printed Hardcover Book', price: 599, type: 'Physical Print (Future Expansion)', pages: 60 },
   ];
 
   const filtered = products.filter((p) => {
@@ -2292,12 +2368,56 @@ function ShopView({
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Banner: Free 40-Page Coloring Book Showcase */}
+      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 rounded-3xl p-6 sm:p-8 text-white shadow-lg flex flex-col md:flex-row items-center gap-6">
+        <img
+          src="/books/kids-coloring-book-cover.png"
+          alt="Kids Coloring Book"
+          className="w-36 sm:w-44 rounded-2xl shadow-2xl border-2 border-white/60 aspect-[3/4] object-cover"
+        />
+        <div className="space-y-3 text-center md:text-left flex-1">
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold">
+            <span>🎁</span>
+            <span>{isMr ? 'विशेष मोफत भेट' : 'Special Free Gift'}</span>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-black">
+            {isMr ? 'बालरंगकाम पुस्तक (४० प्रिंट-तयार पाने)' : 'Kids Coloring Book (40 Print-Ready Pages)'}
+          </h3>
+          <p className="text-xs sm:text-sm text-white/90 leading-relaxed max-w-xl">
+            {isMr
+              ? 'छत्रपती शिवाजी महाराज, बाळ गणेश, श्रीकृष्ण, राजकुमारी, मिकी-मिनी, प्राणी आणि फुलांची ४० अप्रतिम पाने मोफत डाऊनलोड करा!'
+              : '40 full-page illustrations featuring Chhatrapati Shivaji Maharaj, Bal Ganesha, Krishna, Disney characters, animals & flowers! Completely free to download & print.'}
+          </p>
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+            <a
+              href="/books/kids-coloring-book.pdf"
+              download="Kids-Coloring-Book-ColorCraft.pdf"
+              className="px-5 py-2.5 bg-white text-orange-600 hover:bg-orange-50 font-black rounded-xl text-xs shadow-md flex items-center space-x-2 transition-all"
+            >
+              <Download className="w-4 h-4" />
+              <span>{isMr ? 'मोफत PDF डाऊनलोड करा (३.३ MB)' : 'Download Free PDF (3.3 MB)'}</span>
+            </a>
+            <a
+              href="/books/kids-coloring-book.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-black/20 hover:bg-black/30 text-white font-bold rounded-xl text-xs flex items-center space-x-1.5 transition-all"
+            >
+              <Eye className="w-4 h-4" />
+              <span>{isMr ? 'उघडून पहा' : 'Preview Book'}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">ColorCraft Educational Store</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-[#2D3748]">
+            {isMr ? 'कलरक्राफ्ट शैक्षणिक स्टोअर' : 'ColorCraft Educational Store'}
+          </h2>
           <p className="text-xs sm:text-sm text-[#718096] mt-1">
-            Printable digital curriculum bundles and physical book previews. (Payment gateway in Demo Mode).
+            {isMr ? 'प्रिंट करण्यायोग्य डिजिटल संच आणि छापील पुस्तकांची झलक.' : 'Printable digital curriculum bundles and physical book previews. (Payment gateway in Demo Mode).'}
           </p>
         </div>
 
@@ -2306,19 +2426,19 @@ function ShopView({
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 rounded-lg ${filter === 'all' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500'}`}
           >
-            All Products
+            {isMr ? 'सर्व उत्पादने' : 'All Products'}
           </button>
           <button
             onClick={() => setFilter('digital')}
             className={`px-3 py-1.5 rounded-lg ${filter === 'digital' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500'}`}
           >
-            Digital PDFs
+            {isMr ? 'डिजिटल PDF' : 'Digital PDFs'}
           </button>
           <button
             onClick={() => setFilter('print')}
             className={`px-3 py-1.5 rounded-lg ${filter === 'print' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500'}`}
           >
-            Physical Books
+            {isMr ? 'छापील पुस्तके' : 'Physical Books'}
           </button>
         </div>
       </div>
@@ -2335,13 +2455,28 @@ function ShopView({
             </div>
 
             <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
-              <span className="text-lg font-black text-gray-900">₹{item.price}</span>
-              <button
-                onClick={() => onAddToCart(item)}
-                className="px-3.5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all"
-              >
-                Add to Cart
-              </button>
+              <span className={`text-lg font-black ${item.price === 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                {item.price === 0 ? (isMr ? 'मोफत' : 'FREE') : `₹${item.price}`}
+              </span>
+              <div className="flex items-center space-x-2">
+                {item.id === 'prod_free_kids' && (
+                  <a
+                    href="/books/kids-coloring-book.pdf"
+                    download="Kids-Coloring-Book-ColorCraft.pdf"
+                    className="p-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold rounded-xl transition-all flex items-center space-x-1"
+                    title={isMr ? 'थेट डाऊनलोड' : 'Instant Download'}
+                  >
+                    <Download className="w-4 h-4" />
+                    <span className="text-[10px] hidden sm:inline">{isMr ? 'डाऊनलोड' : 'Download'}</span>
+                  </a>
+                )}
+                <button
+                  onClick={() => onAddToCart(item)}
+                  className="px-3.5 py-2 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all"
+                >
+                  {isMr ? 'कार्टमध्ये टाका' : 'Add to Cart'}
+                </button>
+              </div>
             </div>
           </div>
         ))}
